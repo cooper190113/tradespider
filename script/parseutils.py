@@ -59,37 +59,44 @@ class BaiduSpider(BaseSpider):
                 data = {}
                 # 标题
                 res_title = content.xpath('//*[@id="%d"]/h3/a' % ((i - 1) * 10 + j))
+                title = None
                 if res_title:
                     title = res_title[0].xpath('string(.)')
 
                 # URL
                 sub_url = content.xpath('//*[@id="%d"]/h3/a/@href' % ((i - 1) * 10 + j))
+                url = None
                 if sub_url:
-                    sub_url = sub_url[0]
+                    url = sub_url[0]
 
                 # 描述
                 res_abstract = content.xpath('//*[@id="%d"]/div[@class="c-abstract"]' % ((i - 1) * 10 + j)) \
-                               or content.xpath('//*[@id="%d"]/div[@class="c-abstract c-abstract-en"]' % ((i - 1) * 10 + j))
+                               or content.xpath(
+                    '//*[@id="%d"]/div[@class="c-abstract c-abstract-en"]' % ((i - 1) * 10 + j))
+                abstract = None
                 if res_abstract:
                     abstract = res_abstract[0].xpath('string(.)')
                 else:
-                    res_abstract = content.xpath('//*[@id="%d"]/div/div[2]/div[@class="c-abstract"]' % ((i - 1) * 10 + j)) \
-                                   or content.xpath('//*[@id="%d"]/div/div[2]/div[@class="c-abstract c-abstract-en"]' % ((i - 1) * 10 + j))
+                    res_abstract = content.xpath(
+                        '//*[@id="%d"]/div/div[2]/div[@class="c-abstract"]' % ((i - 1) * 10 + j)) \
+                                   or content.xpath(
+                        '//*[@id="%d"]/div/div[2]/div[@class="c-abstract c-abstract-en"]' % ((i - 1) * 10 + j))
                     if res_abstract:
                         abstract = res_abstract[0].xpath('string(.)')
 
+                if not url: continue
                 data['title'] = title
-                data['sub_url'] = sub_url
+                data['url'] = url
                 data['abstract'] = abstract
-
-                next_page_index = flag - 1 if i == 1 else flag
-                rel_url = content.xpath('//*[@id="page"]/a[{}]/@href'.format(next_page_index))
-                if rel_url:
-                    self.url = urljoin(self.url, rel_url[0])
-                else:
-                    print("～～～无更多页面数据～～～")
-                    return
                 yield data
+
+            next_page_index = flag - 1 if i == 1 else flag
+            rel_url = content.xpath('//*[@id="page"]/a[{}]/@href'.format(next_page_index))
+            if rel_url:
+                self.url = urljoin(self.url, rel_url[0])
+            else:
+                print("～～～无更多页面数据～～～")
+                return
 
     def save(self, data):
         file = open(self.desc + "_data.json", 'w+', encoding='utf-8')

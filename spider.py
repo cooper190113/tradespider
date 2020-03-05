@@ -11,8 +11,7 @@ if __name__ == '__main__':
         if page_num.isdigit():
             break
         else:
-            print("页码错误", end=", ")
-            page_num = input("请重新输入搜索页数:")
+            page_num = input("页码错误,请重新输入搜索页数:")
 
     while 1:
         if not page_num.isdigit():
