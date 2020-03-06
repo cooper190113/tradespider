@@ -5,6 +5,7 @@ from urllib.parse import urljoin
 
 from lxml import etree
 from selenium import webdriver
+import csv
 
 # 将Chrome设置置成不加载图片的无界面运行状态
 chrome_options = webdriver.ChromeOptions()
@@ -48,25 +49,26 @@ class BaiduSpider(BaseSpider):
                    + urllib.parse.urlencode({'wd': self.keyword}) + "&" + urllib.parse.urlencode({'oq': self.keyword})
 
     def parse_page(self):
+
+        yield ["Title", "Url", "Abstract"]
+
         for i in range(1, int(self.page_num) + 1):
             print("正在爬取第{}页....{}".format(i, self.url))
-            title = ""
-            abstract = ""
             flag = 11
             html = BaseSpider.get_page_content(self.url)
             content = etree.HTML(html)
-            print(content)
+            # print(content)
             for j in range(1, flag):
-                data = {}
+                data = []
                 # 标题
                 res_title = content.xpath('//*[@id="%d"]/h3/a' % ((i - 1) * 10 + j))
-                title = None
+                title = ""
                 if res_title:
                     title = res_title[0].xpath('string(.)')
 
                 # URL
                 sub_url = content.xpath('//*[@id="%d"]/h3/a/@href' % ((i - 1) * 10 + j))
-                url = None
+                url = ""
                 if sub_url:
                     url = sub_url[0]
 
@@ -74,7 +76,7 @@ class BaiduSpider(BaseSpider):
                 res_abstract = content.xpath('//*[@id="%d"]/div[@class="c-abstract"]' % ((i - 1) * 10 + j)) \
                                or content.xpath(
                     '//*[@id="%d"]/div[@class="c-abstract c-abstract-en"]' % ((i - 1) * 10 + j))
-                abstract = None
+                abstract = ""
                 if res_abstract:
                     abstract = res_abstract[0].xpath('string(.)')
                 else:
@@ -85,10 +87,12 @@ class BaiduSpider(BaseSpider):
                     if res_abstract:
                         abstract = res_abstract[0].xpath('string(.)')
 
-                if not url: continue
-                data['title'] = title
-                data['url'] = url
-                data['abstract'] = abstract
+                if not url:
+                    continue
+
+                data.append(title)
+                data.append(url)
+                data.append(abstract)
                 yield data
 
             next_page_index = flag - 1 if i == 1 else flag
@@ -100,10 +104,10 @@ class BaiduSpider(BaseSpider):
                 return
 
     def save(self, data):
-        file = open(self.desc + "_data.json", 'w+', encoding='utf-8')
-        for result in data:
-            print(result)
-            file.write(json.dumps(result, indent=2, ensure_ascii=False))
+        with open(self.desc + "_data.csv", 'w', newline='', encoding='utf-8-sig') as f:
+            for result in data:
+                f_csv = csv.writer(f)
+                f_csv.writerow(result)
 
 
 class BingSpider(BaseSpider):
