@@ -24,12 +24,12 @@ class BaiduSpider(object):
                    + urllib.parse.urlencode({'wd': self.keyword}) + "&" + urllib.parse.urlencode({'oq': self.keyword})
 
     def get_page_content(self):
-        '''
-            1、百度页面异步js加载，用requests直接获取会丢失页面数据，采用selenium驱动页面
-            2、每次请求sleep 3秒，防止百度识别是爬虫请求
-        :param url:
-        :return:
-        '''
+        """
+            desc:
+                1、百度页面异步js加载，用requests直接获取会丢失页面数据，采用selenium驱动页面
+                2、每次请求sleep 3秒，防止百度识别是爬虫请求
+            return:
+        """
         time.sleep(3)
 
         driver = webdriver.Chrome(chrome_path, chrome_options=chrome_options)
