@@ -1,6 +1,6 @@
-from script.parseutils import BaiduSpider
-from script.parseutils import BingSpider
-from script.parseutils import GoogleSpider
+from script.baiduparser import BaiduSpider
+from script.bingparser import BingSpider
+from script.googleparser import GoogleSpider
 
 if __name__ == '__main__':
     search_engine = input("选择搜索引擎[1:Baidu 2:Bing 3:Google]:")
