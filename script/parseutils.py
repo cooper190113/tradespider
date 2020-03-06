@@ -10,7 +10,8 @@ from selenium import webdriver
 chrome_options = webdriver.ChromeOptions()
 chrome_options.add_experimental_option("prefs", {"profile.managed_default_content_settings.images": 2})
 chrome_options.add_argument("--headless")
-chrome_path = r'C:\Program Files\Python37\chromedriver.exe'
+# 可自定义目录，不同浏览器需要选择对应的版本
+chrome_path = r'chromedriver.exe'
 
 
 class BaseSpider(object):
