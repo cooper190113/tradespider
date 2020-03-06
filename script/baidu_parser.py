@@ -49,6 +49,7 @@ class BaiduSpider(object):
                 data = []
                 # 标题
 
+                res_title = content.xpath('//*[@id="%d"]/h3/a' % ((i - 1) * 10 + j))
                 title = ""
                 if res_title:
                     title = res_title[0].xpath('string(.)')
