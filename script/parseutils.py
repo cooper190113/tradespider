@@ -1,11 +1,11 @@
-import json
+import csv
+import datetime
 import time
 import urllib.parse
 from urllib.parse import urljoin
 
 from lxml import etree
 from selenium import webdriver
-import csv
 
 # 将Chrome设置置成不加载图片的无界面运行状态
 chrome_options = webdriver.ChromeOptions()
@@ -104,7 +104,8 @@ class BaiduSpider(BaseSpider):
                 return
 
     def save(self, data):
-        with open(self.desc + "_data.csv", 'w', newline='', encoding='utf-8-sig') as f:
+        file_name = self.desc + "_" + datetime.datetime.now().strftime('%Y%m%d%H%M%S') + "_data.csv"
+        with open(file_name, 'w', newline='', encoding='utf-8-sig') as f:
             for result in data:
                 f_csv = csv.writer(f)
                 f_csv.writerow(result)
