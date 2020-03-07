@@ -35,8 +35,10 @@ class BingSpider(object):
         url = URL_SEARCH_BING.format(domain=domain, query=quote_plus(keywords))
         content = self.search_page(url, pause)
 
+        yield ["Title", "Url", "Abstract"]
         results = content.xpath('//*[@id="b_results"]//li')
         for result in results:
+            data = []
             title = ""
             title_node = result.xpath("./h2/a//text()") if result.xpath("./h2/a//text()") else None
             if title_node:
@@ -56,7 +58,16 @@ class BingSpider(object):
                 url_node = result.xpath("./div/h2/a/@href") if result.xpath("./div/h2/a/@href") else None
                 url_link = url_link if not url_node else url_node[0]
 
-            print(title + "===" + url_link)
+            abstract = ""
+            abstract_node = result.xpath('./div[@class="b_caption"]')
+            if abstract_node:
+                abstract = abstract_node[0].xpath('string(.)')
+
+            print(title + ", " + url_link + ", " + abstract)
+            data.append(title)
+            data.append(url_link)
+            data.append(abstract)
+            yield data
 
     def search_page(self, url, pause=5):
         """
