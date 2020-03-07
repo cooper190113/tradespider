@@ -1,2 +1,2 @@
 # __init__.py
-__all__ = ['baidu_parser', 'bing_parser', 'google_parser']
+__all__ = ['baidu_search.py', 'bing_search.py', 'google_search.py']

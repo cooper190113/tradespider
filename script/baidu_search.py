@@ -9,10 +9,10 @@ from selenium import webdriver
 
 # 将Chrome设置置成不加载图片的无界面运行状态
 chrome_options = webdriver.ChromeOptions()
-chrome_options.add_experimental_option("prefs", {"profile.managed_default_content_settings.images": 2})
-chrome_options.add_argument("--headless")
+# chrome_options.add_experimental_option("prefs", {"profile.managed_default_content_settings.images": 2})
+# chrome_options.add_argument("--headless")
 # 可自定义目录，不同浏览器需要选择对应的版本
-chrome_path = r'chromedriver.exe'
+chrome_path = r'../driver/chromedriver.exe'
 
 
 class BaiduSpider(object):
