@@ -17,7 +17,8 @@ URL_NEXT_GOOGLE = "https://{domain}/search?hl={language}&q={query}&btnG=Search&g
 
 BLACK_DOMAIN_BAIDU = []
 DOMAIN_BAIDU = 'www.baidu.com'
-URL_SEARCH_BAIDU = "https://{domain}/s?wq={query}"
+URL_SEARCH_BAIDU = "https://{domain}/s?wd={query}"
+NEXT_PAGE_FLAG_BAIDU = 11
 
 BLACK_DOMAIN_BING = []
 DOMAIN_BING = 'cn.bing.com'
@@ -25,9 +26,9 @@ URL_SEARCH_BING = "https://{domain}/search?q={query}"
 REFERE_POST_BING = "{page}&FORM=PERE1"
 NEXT_PAGE_FLAG_BING = 7
 
-logging.getLogger("lxml").setLevel(logging.WARNING)
-logging.getLogger("selenium").setLevel(logging.WARNING)
+logging.getLogger("lxml").setLevel(logging.INFO)
+logging.getLogger("selenium").setLevel(logging.INFO)
 logging.getLogger("urllib3").setLevel(logging.WARNING)
-logging.getLogger("requests").setLevel(logging.WARNING)
+logging.getLogger("requests").setLevel(logging.INFO)
 logging.basicConfig(level=logging.DEBUG, format='%(asctime)s - %(name)s - %(levelname)s: %(message)s')
 LOGGER = logging.getLogger('magic_spider')

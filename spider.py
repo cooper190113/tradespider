@@ -16,22 +16,22 @@ if __name__ == '__main__':
         else:
             page_num = input("页码错误,请重新输入搜索页数:")
 
-    while 1:
-        if not page_num.isdigit():
-            search_engine = input("不支持的搜索引擎,请重新选择搜索引擎[1:Baidu 2:Bing 3:Google]:")
-            continue
-
-        if int(search_engine) == 1:
-            search = BaiduSpider(keyword, page_num)
-            break
-        elif int(search_engine) == 2:
-            search = BingSpider(keyword, page_num)
-            break
-        elif int(search_engine) == 3:
-            search = GoogleSpider(keyword, page_num)
-            break
-        else:
-            search_engine = input("不支持的搜索引擎,请重新选择搜索引擎[1:Baidu 2:Bing 3:Google]:")
-
-    results = search.parse_page()
-    search.save(results)
+    # while 1:
+    #     if not page_num.isdigit():
+    #         search_engine = input("不支持的搜索引擎,请重新选择搜索引擎[1:Baidu 2:Bing 3:Google]:")
+    #         continue
+    #
+    #     if int(search_engine) == 1:
+    #         search = BaiduSpider(keyword, page_num)
+    #         break
+    #     elif int(search_engine) == 2:
+    #         search = BingSpider(keyword, page_num)
+    #         break
+    #     elif int(search_engine) == 3:
+    #         search = GoogleSpider(keyword, page_num)
+    #         break
+    #     else:
+    #         search_engine = input("不支持的搜索引擎,请重新选择搜索引擎[1:Baidu 2:Bing 3:Google]:")
+    #
+    # results = search.parse_page()
+    # search.save(results)
