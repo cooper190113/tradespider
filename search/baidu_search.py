@@ -15,6 +15,7 @@ chrome_options = webdriver.ChromeOptions()
 chrome_path = r'../driver/chromedriver.exe'
 
 
+#  https://blog.csdn.net/qq_29027865/article/details/84000942
 class BaiduSpider(object):
     def __init__(self, keyword, page_num):
         self.desc = "Baidu"

@@ -1,89 +1,147 @@
+import os
+import random
+import time
+import sys
+
 from lxml import etree
 from selenium import webdriver
 
-# xpath https://www.jianshu.com/p/97a43eb4b2b3
+from search.config import LOGGER, USER_AGENT, DRIVER_PATH, REFERE, DOMAIN_BING, BLACK_DOMAIN_BING, URL_SEARCH_BING, \
+    PROXY
+
+if sys.version_info[0] > 2:
+    from urllib.parse import quote_plus
+else:
+    from urllib import quote_plus
+
+
 class BingSpider(object):
-    def __init__(self, keyword, page_num):
-        self.desc = "Google"
-        self.url = ""
-        self.keyword = keyword
-        self.page_num = page_num
+    """
+        Magic bing search.
+    """
 
-    def parse_page(self):
+    def __init__(self):
         pass
 
-    def save(self, data):
-        pass
+    def search(self, keywords, num=None, pause=5):
+        """
+        Get the results you want,such as title,description,url
+        :param keywords:
+        :param num:
+        :param pause:
+        :return: Generator
+        """
+        domain = self.get_random_domain()
+        url = URL_SEARCH_BING.format(domain=domain, query=quote_plus(keywords))
+        content = self.search_page(url, pause)
+
+        results = content.xpath('//*[@id="b_results"]//li')
+        for result in results:
+            title = ""
+            title_node = result.xpath("./h2/a//text()") if result.xpath("./h2/a//text()") else None
+            if title_node:
+                title = title.join(title_node)
+            else:
+                title_node = result.xpath("./div/h2/a//text()") if result.xpath("./div/h2/a//text()") else None
+                title = title if not title_node else title.join(title_node)
+
+            if not title:
+                continue
+
+            url_link = ""
+            url_node = result.xpath("./h2/a/@href") if result.xpath("./h2/a/@href") else None
+            if url_node:
+                url_link = url_node[0]
+            else:
+                url_node = result.xpath("./div/h2/a/@href") if result.xpath("./div/h2/a/@href") else None
+                url_link = url_link if not url_node else url_node[0]
+
+            print(title + "===" + url_link)
+
+    def search_page(self, url, pause=5):
+        """
+        Google search
+        :param pause:
+        :param url:
+        :return: result
+        """
+        time.sleep(pause)
+        driver = webdriver.Chrome(executable_path=DRIVER_PATH, chrome_options=self.get_options())
+        try:
+            LOGGER.info("正在抓取:" + url)
+            driver.get(url)
+            html = driver.page_source
+            selector = etree.HTML(html)
+            # print(html)
+            # print(selector)
+            return selector
+        except Exception as e:
+            LOGGER.exception(e)
+            return None
+        finally:
+            driver.close()
+
+    def get_options(self, proxy=None, user_agent=None):
+        # 进入浏览器设置
+        options = webdriver.ChromeOptions()
+        # 谷歌无头模式
+        options.add_argument('--headless')
+        options.add_argument('--disable-gpu')
+        options.add_argument('window-size=1200x600')
+        options.add_argument('--start-maximized')
+        # 设置中文
+        options.add_argument('lang=zh_CN.UTF-8')
+
+        # 设置代理
+        # options.add_argument('--proxy-server=%s' % self.get_random_user_proxy())
+        options.add_argument('user-agent=' + self.get_random_user_agent())
+
+        options.add_argument('--referer=%s' % REFERE.format(DOMAIN_BING))
+        return options
+
+    def get_random_user_proxy(self):
+        """
+        Get a random user agent string.
+        :return: Random user agent string.
+        """
+        proxy = random.choice(self.get_data('all_proxy.txt', PROXY))
+        return proxy.split("//").pop()
+
+    def get_random_user_agent(self):
+        """
+        Get a random user agent string.
+        :return: Random user agent string.
+        """
+        return random.choice(self.get_data('user_agents.txt', USER_AGENT))
+
+    def get_random_domain(self):
+        """
+        Get a random domain.
+        :return: Random user agent string.
+        """
+        domain = random.choice(self.get_data('bing_domain.txt', DOMAIN_BING))
+        if domain in BLACK_DOMAIN_BING:
+            self.get_random_domain()
+        else:
+            return domain
+
+    def get_data(self, filename, default=''):
+        """
+        Get data from a file
+        :param filename: filename
+        :param default: default value
+        :return: data
+        """
+        root_folder = os.path.dirname(__file__)
+        user_agents_file = os.path.join(os.path.join(root_folder, 'data'), filename)
+        try:
+            with open(user_agents_file) as fp:
+                data = [_.strip() for _ in fp.readlines()]
+        except:
+            data = [default]
+        return data
 
 
-proxy = "117.88.4.217:3000"
-user_agent = "Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/81.0.4044.9 Safari/537.36"
-
-# 进入浏览器设置
-options = webdriver.ChromeOptions()
-# 谷歌无头模式
-# options.add_argument('--headless')
-# options.add_argument('--disable-gpu')
-# options.add_argument('window-size=1200x600')
-options.add_argument('--start-maximized')
-# 设置中文
-options.add_argument('lang=zh_CN.UTF-8')
-
-# 设置代理
-if proxy:
-    options.add_argument('--proxy-server=%s' % proxy)
-if user_agent:
-    options.add_argument('user-agent=' + user_agent)
-options.add_argument('--referer=https://cn.bing.com')
-
-driver = webdriver.Chrome(executable_path='../driver/chromedriver.exe', chrome_options=options)
-
-# url = "https://www.baidu.com/s?wd=python"
-url = "https://cn.bing.com/search?q=python"
-driver.get(url)
-
-html = driver.page_source
-if '未连接到互联网' in html:
-    print('代理不好使啦')
-if 'anti_Spider-checklogin&' in html:
-    print('被anti_Spider check啦')
-# print(driver.page_source)
-# print(driver.current_url)
-# print(driver.get_cookies())
-
-selector = etree.HTML(html)
-
-results = selector.xpath('//*[@id="b_results"]//li')
-for result in results:
-    print(result)
-    title = result.xpath("./h2/a//text()") if result.xpath("./h2/a//text()") else None
-    if title:
-        print(title)
-    else:
-        title = result.xpath("./div/h2/a//text()") if result.xpath("./div/h2/a//text()") else None
-        print(title)
-    # for item in items:
-    #     a = item.xpath('/h2/a')
-    #     print(a[0].xpath('string(.)'))
-    # titles = result.xpath('//li/h2/a')
-    # if titles:
-    #     print(titles[0].xpath('string(.)'))
-    # else:
-    #     titles = result.xpath('//li/div/h2/a')
-    #     print(titles[0].xpath('string(.)'))
-
-# titles = selector.xpath('//*[@id="b_results"]/li/h2/a')
-# if titles:
-#     print(titles[0].xpath('string(.)'))
-# else:
-#     titles = selector.xpath('//*[@id="b_results"]/li/div/h2/a')
-#     print(titles[0].xpath('string(.)'))
-
-
-# urls = selector.xpath('//*[@id="b_results"]/li/h2/a/@href')
-# abstracts = selector.xpath('//*[@id="b_results"]/li/div/p/text()')
-# for title in titles:
-#     print(f'{title}')
-# print(selector)
-# 采集完成关闭浏览器
-# driver.close()
+if __name__ == '__main__':
+    search = BingSpider()
+    search.search("Python")
