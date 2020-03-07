@@ -1,2 +1,2 @@
 # __init__.py
-__all__ = ['baidu_search', 'bing_search', 'google_search', 'config']
+__all__ = ['baidu_search', 'bing_search', 'google_search', 'config', 'ip']
