@@ -1,7 +1,9 @@
+import csv
+import datetime
 import os
 import random
-import time
 import sys
+import time
 
 from lxml import etree
 from selenium import webdriver
@@ -10,7 +12,7 @@ from search.config import LOGGER, USER_AGENT, DRIVER_PATH, REFERE, DOMAIN_BING, 
     PROXY
 
 if sys.version_info[0] > 2:
-    from urllib.parse import quote_plus
+    from urllib.parse import quote_plus, urljoin
 else:
     from urllib import quote_plus
 
@@ -21,7 +23,7 @@ class BingSpider(object):
     """
 
     def __init__(self):
-        pass
+        self.desc = "Bing"
 
     def search(self, keywords, num=None, pause=5):
         """
@@ -31,43 +33,54 @@ class BingSpider(object):
         :param pause:
         :return: Generator
         """
-        domain = self.get_random_domain()
-        url = URL_SEARCH_BING.format(domain=domain, query=quote_plus(keywords))
-        content = self.search_page(url, pause)
+        url = URL_SEARCH_BING.format(domain=self.get_random_domain(), query=quote_plus(keywords))
 
-        yield ["Title", "Url", "Abstract"]
-        results = content.xpath('//*[@id="b_results"]//li')
-        for result in results:
-            data = []
-            title = ""
-            title_node = result.xpath("./h2/a//text()") if result.xpath("./h2/a//text()") else None
-            if title_node:
-                title = title.join(title_node)
+        for i in range(1, int(num) + 1):
+            print("正在爬取第{}页....{}".format(i, url))
+            flag = 6
+
+            content = self.search_page(url, pause)
+            results = content.xpath('//*[@id="b_results"]//li')
+            for result in results:
+                data = []
+                title = ""
+                title_node = result.xpath("./h2/a//text()") if result.xpath("./h2/a//text()") else None
+                if title_node:
+                    title = title.join(title_node)
+                else:
+                    title_node = result.xpath("./div/h2/a//text()") if result.xpath("./div/h2/a//text()") else None
+                    title = title if not title_node else title.join(title_node)
+
+                if not title:
+                    continue
+
+                url_link = ""
+                url_node = result.xpath("./h2/a/@href") if result.xpath("./h2/a/@href") else None
+                if url_node:
+                    url_link = url_node[0]
+                else:
+                    url_node = result.xpath("./div/h2/a/@href") if result.xpath("./div/h2/a/@href") else None
+                    url_link = url_link if not url_node else url_node[0]
+
+                abstract = ""
+                abstract_node = result.xpath('./div[@class="b_caption"]')
+                if abstract_node:
+                    abstract = abstract_node[0].xpath('string(.)')
+
+                print(title + ", " + url_link + ", " + abstract)
+                data.append(title)
+                data.append(url_link)
+                data.append(abstract)
+                yield data
+
+            next_page_index = flag - 1 if i == 1 else flag
+            next_page_url = content.xpath(
+                '//*[@id="b_results"]/li[@class="b_pag"]/nav/ul/li[{}]/a/@href'.format(next_page_index))
+            if next_page_url:
+                url = urljoin(url, next_page_url[0])
             else:
-                title_node = result.xpath("./div/h2/a//text()") if result.xpath("./div/h2/a//text()") else None
-                title = title if not title_node else title.join(title_node)
-
-            if not title:
-                continue
-
-            url_link = ""
-            url_node = result.xpath("./h2/a/@href") if result.xpath("./h2/a/@href") else None
-            if url_node:
-                url_link = url_node[0]
-            else:
-                url_node = result.xpath("./div/h2/a/@href") if result.xpath("./div/h2/a/@href") else None
-                url_link = url_link if not url_node else url_node[0]
-
-            abstract = ""
-            abstract_node = result.xpath('./div[@class="b_caption"]')
-            if abstract_node:
-                abstract = abstract_node[0].xpath('string(.)')
-
-            print(title + ", " + url_link + ", " + abstract)
-            data.append(title)
-            data.append(url_link)
-            data.append(abstract)
-            yield data
+                print("～～～无更多页面数据～～～")
+                return
 
     def search_page(self, url, pause=5):
         """
@@ -152,7 +165,15 @@ class BingSpider(object):
             data = [default]
         return data
 
+    def save(self, data):
+        with open(self.desc + "_" + datetime.datetime.now().strftime('%Y%m%d%H%M%S') + "_data.csv",
+                  'w', newline='', encoding='utf-8-sig') as f:
+            for result in data:
+                f_csv = csv.writer(f)
+                f_csv.writerow(result)
+
 
 if __name__ == '__main__':
     search = BingSpider()
-    search.search("Python")
+    results = search.search("Python", 5)
+    search.save(results)
