@@ -9,7 +9,7 @@ from lxml import etree
 from selenium import webdriver
 
 from search.config import LOGGER, USER_AGENT, DRIVER_PATH, REFERE, DOMAIN_BING, BLACK_DOMAIN_BING, URL_SEARCH_BING, \
-    PROXY, REFERE_POST_BING, NEXT_PAGE_FLAG
+    PROXY, REFERE_POST_BING, NEXT_PAGE_FLAG_BING
 
 if sys.version_info[0] > 2:
     from urllib.parse import quote_plus, urljoin
@@ -77,7 +77,7 @@ class BingSpider(object):
                 data.append(abstract)
                 yield data
 
-            next_page_index = NEXT_PAGE_FLAG - 1 if i == 1 else NEXT_PAGE_FLAG
+            next_page_index = NEXT_PAGE_FLAG_BING - 1 if i == 1 else NEXT_PAGE_FLAG_BING
             next_page_url = content.xpath(
                 '//*[@id="b_results"]/li[@class="b_pag"]/nav/ul/li[{}]/a/@href'.format(next_page_index))
             if next_page_url:
@@ -107,8 +107,8 @@ class BingSpider(object):
         except Exception as e:
             LOGGER.exception(e)
             return None
-        # finally:
-        #     driver.close()
+        finally:
+            driver.close()
 
     def get_options(self, num):
         # 进入浏览器设置
