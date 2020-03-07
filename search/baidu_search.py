@@ -17,7 +17,6 @@ else:
     from urllib import quote_plus
 
 
-#  https://blog.csdn.net/qq_29027865/article/details/84000942
 class BaiduSpider(object):
     """
     Magic baidu search.
@@ -189,5 +188,5 @@ class BaiduSpider(object):
 
 if __name__ == '__main__':
     search = BaiduSpider()
-    results = search.search("Python", 10)
+    results = search.search("Python", 3)
     search.save(results)
