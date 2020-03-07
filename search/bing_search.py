@@ -9,7 +9,7 @@ from lxml import etree
 from selenium import webdriver
 
 from search.config import LOGGER, USER_AGENT, DRIVER_PATH, REFERE, DOMAIN_BING, BLACK_DOMAIN_BING, URL_SEARCH_BING, \
-    PROXY
+    PROXY, REFERE_POST_BING, NEXT_PAGE_FLAG
 
 if sys.version_info[0] > 2:
     from urllib.parse import quote_plus, urljoin
@@ -17,6 +17,9 @@ else:
     from urllib import quote_plus
 
 
+#######################
+# 问题: 无法获取到每次变动正确的referer
+#######################
 class BingSpider(object):
     """
         Magic bing search.
@@ -24,22 +27,23 @@ class BingSpider(object):
 
     def __init__(self):
         self.desc = "Bing"
+        self.url = URL_SEARCH_BING
+        self.referer = REFERE.format(DOMAIN_BING)
 
-    def search(self, keywords, num=None, pause=5):
+    def search(self, keywords, num, pause=5):
         """
         Get the results you want,such as title,description,url
         :param keywords:
-        :param num:
+        :param num: pageNum
         :param pause:
         :return: Generator
         """
-        url = URL_SEARCH_BING.format(domain=self.get_random_domain(), query=quote_plus(keywords))
+        self.url = self.url.format(domain=self.get_random_domain(), query=quote_plus(keywords))
 
         for i in range(1, int(num) + 1):
-            print("正在爬取第{}页....{}".format(i, url))
-            flag = 6
+            print("正在爬取第{}页....{}".format(i, self.url))
 
-            content = self.search_page(url, pause)
+            content = self.search_page(self.url, i, pause)
             results = content.xpath('//*[@id="b_results"]//li')
             for result in results:
                 data = []
@@ -73,24 +77,25 @@ class BingSpider(object):
                 data.append(abstract)
                 yield data
 
-            next_page_index = flag - 1 if i == 1 else flag
+            next_page_index = NEXT_PAGE_FLAG - 1 if i == 1 else NEXT_PAGE_FLAG
             next_page_url = content.xpath(
                 '//*[@id="b_results"]/li[@class="b_pag"]/nav/ul/li[{}]/a/@href'.format(next_page_index))
             if next_page_url:
-                url = urljoin(url, next_page_url[0])
+                self.url = urljoin(self.url, next_page_url[0])
             else:
                 print("～～～无更多页面数据～～～")
                 return
 
-    def search_page(self, url, pause=5):
+    def search_page(self, url, num, pause=5):
         """
-        Google search
+        Bing search
+        :param num: pageNum
         :param pause:
         :param url:
         :return: result
         """
         time.sleep(pause)
-        driver = webdriver.Chrome(executable_path=DRIVER_PATH, chrome_options=self.get_options())
+        driver = webdriver.Chrome(executable_path=DRIVER_PATH, chrome_options=self.get_options(num))
         try:
             LOGGER.info("正在抓取:" + url)
             driver.get(url)
@@ -102,10 +107,10 @@ class BingSpider(object):
         except Exception as e:
             LOGGER.exception(e)
             return None
-        finally:
-            driver.close()
+        # finally:
+        #     driver.close()
 
-    def get_options(self, proxy=None, user_agent=None):
+    def get_options(self, num):
         # 进入浏览器设置
         options = webdriver.ChromeOptions()
         # 谷歌无头模式
@@ -120,8 +125,22 @@ class BingSpider(object):
         # options.add_argument('--proxy-server=%s' % self.get_random_user_proxy())
         options.add_argument('user-agent=' + self.get_random_user_agent())
 
-        options.add_argument('--referer=%s' % REFERE.format(DOMAIN_BING))
+        options.add_argument('--referer=%s' % self.get_random_referer(num))
         return options
+
+    def get_random_referer(self, num):
+        """
+        Get a random referer string.
+        :param num: pageNum
+        :return: Random referer string.
+        """
+        if num == 1:
+            referer = REFERE.format(DOMAIN_BING)
+        elif num == 2:
+            referer = self.url[0:self.url.index("first") - 1]
+        else:
+            referer = urljoin(self.url, REFERE_POST_BING.format((num - 2) * 10 - 1));
+        return referer
 
     def get_random_user_proxy(self):
         """

@@ -22,6 +22,8 @@ URL_SEARCH_BAIDU = "https://{domain}/s?wq={query}"
 BLACK_DOMAIN_BING = []
 DOMAIN_BING = 'cn.bing.com'
 URL_SEARCH_BING = "https://{domain}/search?q={query}"
+REFERE_POST_BING = "{page}&FORM=PERE1"
+NEXT_PAGE_FLAG = 7
 
 logging.getLogger("lxml").setLevel(logging.WARNING)
 logging.getLogger("selenium").setLevel(logging.WARNING)
