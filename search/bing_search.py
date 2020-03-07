@@ -30,8 +30,8 @@ options.add_argument('--start-maximized')
 options.add_argument('lang=zh_CN.UTF-8')
 
 # 设置代理
-# if proxy:
-#     options.add_argument('--proxy-server=%s' % proxy)
+if proxy:
+    options.add_argument('--proxy-server=%s' % proxy)
 if user_agent:
     options.add_argument('user-agent=' + user_agent)
 options.add_argument('--referer=https://cn.bing.com')
