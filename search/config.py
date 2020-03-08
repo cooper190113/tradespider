@@ -26,9 +26,9 @@ URL_SEARCH_BING = "https://{domain}/search?q={query}"
 REFERE_POST_BING = "{page}&FORM=PERE1"
 NEXT_PAGE_FLAG_BING = 7
 
-logging.getLogger("lxml").setLevel(logging.INFO)
-logging.getLogger("selenium").setLevel(logging.INFO)
+logging.getLogger("lxml").setLevel(logging.WARNING)
+logging.getLogger("selenium").setLevel(logging.WARNING)
 logging.getLogger("urllib3").setLevel(logging.WARNING)
-logging.getLogger("requests").setLevel(logging.INFO)
+logging.getLogger("requests").setLevel(logging.WARNING)
 logging.basicConfig(level=logging.DEBUG, format='%(asctime)s - %(name)s - %(levelname)s: %(message)s')
 LOGGER = logging.getLogger('magic_spider')
