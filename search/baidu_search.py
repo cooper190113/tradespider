@@ -27,11 +27,12 @@ class BaiduSpider(object):
         self.url = URL_SEARCH_BAIDU
         self.referer = REFERE.format(DOMAIN_BAIDU)
 
-    def search(self, keywords, num, pause=5):
+    def search(self, keywords, num=None, language=None, pause=5):
         """
         Get the results you want,such as title,description,url
         :param keywords:
         :param num: pageNum
+        :param language:
         :param pause:
         :return: Generator
         """
@@ -85,9 +86,10 @@ class BaiduSpider(object):
                 print("～～～无更多页面数据～～～")
                 return
 
-    def search_page(self, url, num, pause=5):
+    def search_page(self, url, num=None, language=None, pause=5):
         """
         Baidu search
+        :param language:
         :param num: PageNum
         :param url:
         :param pause:

@@ -30,9 +30,10 @@ class BingSpider(object):
         self.url = URL_SEARCH_BING
         self.referer = REFERE.format(DOMAIN_BING)
 
-    def search(self, keywords, num, pause=5):
+    def search(self, keywords, num=None, language=None, pause=5):
         """
         Get the results you want,such as title,description,url
+        :param language:
         :param keywords:
         :param num: pageNum
         :param pause:
@@ -86,9 +87,10 @@ class BingSpider(object):
                 print("～～～无更多页面数据～～～")
                 return
 
-    def search_page(self, url, num, pause=5):
+    def search_page(self, url, num=None, language=None,  pause=5):
         """
         Bing search
+        :param language:
         :param num: pageNum
         :param pause:
         :param url:
