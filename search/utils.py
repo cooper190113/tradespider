@@ -1,6 +1,7 @@
 import csv
 import os
 import datetime
+import sys
 
 from search.config import LOGGER
 
@@ -12,7 +13,7 @@ def read_file(filename, default=''):
     :param default: default value
     :return: data
     """
-    root_folder = os.path.dirname(__file__)
+    root_folder = os.path.dirname(os.path.realpath(sys.argv[0]))
     user_agents_file = os.path.join(os.path.join(root_folder, 'data'), filename)
     try:
         with open(user_agents_file) as fp:

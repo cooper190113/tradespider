@@ -16,7 +16,9 @@ else:
     from urllib import quote_plus, urljoin
 
 #######################
-# 问题: 随机变化Agent可能导致数据不准确[电脑查询和手机查询页面不一样]
+# webdriver
+# 问题: 1、随机变化Agent可能导致数据不准确[电脑查询和手机查询页面不一样]
+#       2、随机变化Agent导致和chromedriver.exe版本不一致
 #######################
 class BaiduSpider(object):
     """
@@ -168,5 +170,5 @@ class BaiduSpider(object):
 
 if __name__ == '__main__':
     search = BaiduSpider()
-    results = search.search("Python", 3)
+    results = search.search("Python", 50)
     save(search.desc, results)
