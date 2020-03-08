@@ -103,6 +103,7 @@ class BingSpider(object):
             driver.get(url)
             html = driver.page_source
             selector = etree.HTML(html)
+            time.sleep(pause)
             # print(html)
             # print(selector)
             return selector
@@ -116,8 +117,8 @@ class BingSpider(object):
         # 进入浏览器设置
         options = webdriver.ChromeOptions()
         # 谷歌无头模式
-        options.add_argument('--headless')
-        options.add_argument('--disable-gpu')
+        # options.add_argument('--headless')
+        # options.add_argument('--disable-gpu')
         options.add_argument('window-size=1200x600')
         options.add_argument('--start-maximized')
         # 设置中文
