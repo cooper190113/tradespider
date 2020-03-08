@@ -16,8 +16,10 @@ else:
 
 
 #######################
-# 问题: 无法获取到每次变动正确的referer
-#######################
+# 问题1: 无法获取到每次变动正确的referer
+# webdriver
+# 问题2: 1、随机变化Agent可能导致数据不准确[电脑查询和手机查询页面不一样]
+#       2、随机变化Agent导致和chromedriver.exe版本不一致
 class BingSpider(object):
     """
         Magic bing search.
