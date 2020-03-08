@@ -1,6 +1,4 @@
-import csv
-import datetime
-import os
+import random
 import random
 import sys
 import time
@@ -10,6 +8,7 @@ from selenium import webdriver
 
 from search.config import URL_SEARCH_BAIDU, REFERE, DOMAIN_BAIDU, NEXT_PAGE_FLAG_BAIDU, DRIVER_PATH, LOGGER, PROXY, \
     BLACK_DOMAIN_BAIDU, USER_AGENT
+from search.utils import save, read_file
 
 if sys.version_info[0] > 2:
     from urllib.parse import quote_plus, urljoin
@@ -143,7 +142,7 @@ class BaiduSpider(object):
         Get a random user agent string.
         :return: Random user agent string.
         """
-        proxy = random.choice(self.get_data('all_proxy.txt', PROXY))
+        proxy = random.choice(read_file('all_proxy.txt', PROXY))
         return proxy.split("//").pop()
 
     def get_random_user_agent(self):
@@ -151,44 +150,21 @@ class BaiduSpider(object):
         Get a random user agent string.
         :return: Random user agent string.
         """
-        return random.choice(self.get_data('user_agents.txt', USER_AGENT))
+        return random.choice(read_file('user_agents.txt', USER_AGENT))
 
     def get_random_domain(self):
         """
         Get a random domain.
         :return: Random user agent string.
         """
-        domain = random.choice(self.get_data('baidu_domain.txt', DOMAIN_BAIDU))
+        domain = random.choice(read_file('baidu_domain.txt', DOMAIN_BAIDU))
         if domain in BLACK_DOMAIN_BAIDU:
             self.get_random_domain()
         else:
             return domain
 
-    def get_data(self, filename, default=''):
-        """
-        Get data from a file
-        :param filename: filename
-        :param default: default value
-        :return: data
-        """
-        root_folder = os.path.dirname(__file__)
-        user_agents_file = os.path.join(os.path.join(root_folder, 'data'), filename)
-        try:
-            with open(user_agents_file) as fp:
-                data = [_.strip() for _ in fp.readlines()]
-        except:
-            data = [default]
-        return data
-
-    def save(self, data):
-        with open(self.desc + "_" + datetime.datetime.now().strftime('%Y%m%d%H%M%S') + "_data.csv",
-                  'w', newline='', encoding='utf-8-sig') as f:
-            for result in data:
-                f_csv = csv.writer(f)
-                f_csv.writerow(result)
-
 
 if __name__ == '__main__':
     search = BaiduSpider()
     results = search.search("Python", 3)
-    search.save(results)
+    save(search.desc, results)

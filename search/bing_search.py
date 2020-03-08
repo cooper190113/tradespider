@@ -1,6 +1,3 @@
-import csv
-import datetime
-import os
 import random
 import sys
 import time
@@ -10,6 +7,7 @@ from selenium import webdriver
 
 from search.config import LOGGER, USER_AGENT, DRIVER_PATH, REFERE, DOMAIN_BING, BLACK_DOMAIN_BING, URL_SEARCH_BING, \
     PROXY, REFERE_POST_BING, NEXT_PAGE_FLAG_BING
+from search.utils import save, read_file
 
 if sys.version_info[0] > 2:
     from urllib.parse import quote_plus, urljoin
@@ -87,7 +85,7 @@ class BingSpider(object):
                 print("～～～无更多页面数据～～～")
                 return
 
-    def search_page(self, url, num=None, language=None,  pause=5):
+    def search_page(self, url, num=None, language=None, pause=5):
         """
         Bing search
         :param language:
@@ -149,7 +147,7 @@ class BingSpider(object):
         Get a random user agent string.
         :return: Random user agent string.
         """
-        proxy = random.choice(self.get_data('all_proxy.txt', PROXY))
+        proxy = random.choice(read_file('all_proxy.txt', PROXY))
         return proxy.split("//").pop()
 
     def get_random_user_agent(self):
@@ -157,44 +155,21 @@ class BingSpider(object):
         Get a random user agent string.
         :return: Random user agent string.
         """
-        return random.choice(self.get_data('user_agents.txt', USER_AGENT))
+        return random.choice(read_file('user_agents.txt', USER_AGENT))
 
     def get_random_domain(self):
         """
         Get a random domain.
         :return: Random user agent string.
         """
-        domain = random.choice(self.get_data('bing_domain.txt', DOMAIN_BING))
+        domain = random.choice(read_file('bing_domain.txt', DOMAIN_BING))
         if domain in BLACK_DOMAIN_BING:
             self.get_random_domain()
         else:
             return domain
 
-    def get_data(self, filename, default=''):
-        """
-        Get data from a file
-        :param filename: filename
-        :param default: default value
-        :return: data
-        """
-        root_folder = os.path.dirname(__file__)
-        user_agents_file = os.path.join(os.path.join(root_folder, 'data'), filename)
-        try:
-            with open(user_agents_file) as fp:
-                data = [_.strip() for _ in fp.readlines()]
-        except:
-            data = [default]
-        return data
-
-    def save(self, data):
-        with open(self.desc + "_" + datetime.datetime.now().strftime('%Y%m%d%H%M%S') + "_data.csv",
-                  'w', newline='', encoding='utf-8-sig') as f:
-            for result in data:
-                f_csv = csv.writer(f)
-                f_csv.writerow(result)
-
 
 if __name__ == '__main__':
     search = BingSpider()
     results = search.search("Python", 5)
-    search.save(results)
+    save(search.desc, results)
