@@ -12,7 +12,7 @@ from search.utils import save, read_file
 if sys.version_info[0] > 2:
     from urllib.parse import quote_plus, urljoin
 else:
-    from urllib import quote_plus
+    from urllib import quote_plus, urljoin
 
 
 #######################

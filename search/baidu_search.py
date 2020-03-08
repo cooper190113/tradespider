@@ -13,9 +13,11 @@ from search.utils import save, read_file
 if sys.version_info[0] > 2:
     from urllib.parse import quote_plus, urljoin
 else:
-    from urllib import quote_plus
+    from urllib import quote_plus, urljoin
 
-
+#######################
+# 问题: 随机变化Agent可能导致数据不准确[电脑查询和手机查询页面不一样]
+#######################
 class BaiduSpider(object):
     """
     Magic baidu search.
