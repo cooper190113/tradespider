@@ -147,8 +147,7 @@ class BingSpider(object):
         Get a random user agent string.
         :return: Random user agent string.
         """
-        proxy = random.choice(read_file('all_proxy.txt', PROXY))
-        return proxy.split("//").pop()
+        return random.choice(read_file('all_proxy.txt', PROXY))
 
     def get_random_user_agent(self):
         """
